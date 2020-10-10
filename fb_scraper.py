@@ -261,6 +261,9 @@ def delete_all(table_name, name_of_db):
 if __name__ == "__main__":
     url = "https://facebook.com/marketplace"
     setup_db('mac_mini.db', 'listings', ('price', 'description', 'url'))
+    setup_db('mac_mini.db', 'ban_list', ('url'))
+    setup_db('mac_mini.db', 'price_change',
+             ('url', 'description', 'price_change', 'date'))
     email = os.environ.get('FB_EMAIL')
     password = os.environ.get('FB_PASSWORD')
     browser = the_opening(True, url)
