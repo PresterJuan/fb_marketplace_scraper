@@ -167,7 +167,11 @@ def setup_db(db_name, table_name, *args):
     """
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
-    c.execute(f"CREATE TABLE IF NOT EXISTS {table_name} {args[0]}")
+    print('args', args[0])
+    new_tup = (args[0])
+    sql = f"""CREATE TABLE IF NOT EXISTS {table_name} {new_tup}"""
+    print(sql)
+    c.execute(sql)
     conn.commit()
     conn.close()
 
@@ -177,6 +181,8 @@ def save_to_db(dict_instance, table_name, name_of_db):
     c = conn.cursor()
     url_to_search = dict_instance['url']
     print(type(url_to_search))
+    create_ban_list = c.execute(
+        """CREATE TABLE IF NOT EXISTS ban_list ('url')""")
     ban_list_check = c.execute(
         f"SELECT * FROM ban_list WHERE url=(?)", (url_to_search,))
     banned = ban_list_check.fetchone()
@@ -260,8 +266,8 @@ def delete_all(table_name, name_of_db):
 
 if __name__ == "__main__":
     url = "https://facebook.com/marketplace"
-    setup_db('mac_mini.db', 'listings', ('price', 'description', 'url'))
-    setup_db('mac_mini.db', 'ban_list', ('url'))
+    setup_db('mac_mini.db', 'listings',
+             ('price', 'description', 'url', 'date'))
     setup_db('mac_mini.db', 'price_change',
              ('url', 'description', 'price_change', 'date'))
     email = os.environ.get('FB_EMAIL')
