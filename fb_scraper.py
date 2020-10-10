@@ -82,9 +82,41 @@ def scroll_down(driver):
             break
         last_height = new_height
         x += 1
+        return
 
 
-def grab_data(browser):
+def grab_data(browser, state_you_want, *args):
+    """Grabs all of the image tags, tries to find their alt text for the descritpion, grabs the next string, which happens to be the price, grabs the url for the post by snagging the previous a tag
+    input state you want like 'TX' and args are cities you want to exclude ex ('San Antonio', 'Austin', 'Houston')"""
+    soup = BeautifulSoup(browser.page_source, 'html.parser')
+    imgs = soup.find_all('img')
+    payload = []
+    for i in imgs:
+        try:
+            alt_text = i['alt']
+            listing_remove = False
+            for city in args[0]:
+                if city in alt_text:
+                    listing_remove = True
+            if listing_remove == True:
+                imgs.remove(i)
+                print('Removed: ', alt_text)
+            elif state_you_want in alt_text:
+                stuff = {}
+                stuff['description'] = alt_text
+                stuff['cost'] = i.find_next(string=True)
+                stuff['url'] = 'https://www.facebook.com' + \
+                    i.find_previous('a')['href']
+                payload.append(stuff)
+            else:
+                imgs.remove(i)
+                print('Removed: ', alt_text)
+        except Exception as e:
+            print(e)
+    return payload
+
+
+def old_grab_data(browser):
     """Grabs all of the image tags, tries to find their alt text for the descritpion, grabs the next string, which happens to be the price, grabs the url for the post by snagging the previous a tag"""
     soup = BeautifulSoup(browser.page_source, 'html.parser')
     imgs = soup.find_all('img')
@@ -167,10 +199,8 @@ def setup_db(db_name, table_name, *args):
     """
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
-    print('args', args[0])
     new_tup = (args[0])
     sql = f"""CREATE TABLE IF NOT EXISTS {table_name} {new_tup}"""
-    print(sql)
     c.execute(sql)
     conn.commit()
     conn.close()
@@ -291,7 +321,9 @@ if __name__ == "__main__":
         print('search worked')
         scroll_down(browser)
         print('scroll down worked')
-        payload = grab_data(browser)
+        # the new grab_data is used here
+        payload = grab_data(browser, "TX", ('Houston', 'San Antonio',
+                                            'Austin', 'Spring', 'Port Arthur', 'Round Rock', 'Missouri City'))
         print('\n\n\npayload grabbed')
         print(payload)
         new_payload = screen_out(
