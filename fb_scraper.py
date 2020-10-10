@@ -167,7 +167,7 @@ def setup_db(db_name, table_name, *args):
     """
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
-    c.execute(f"CREATE TABLE {table_name} {args[0]}")
+    c.execute(f"CREATE TABLE IF NOT EXISTS {table_name} {args[0]}")
     conn.commit()
     conn.close()
 
@@ -260,6 +260,7 @@ def delete_all(table_name, name_of_db):
 
 if __name__ == "__main__":
     url = "https://facebook.com/marketplace"
+    setup_db('mac_mini.db', 'listings', ('price', 'description', 'url'))
     email = os.environ.get('FB_EMAIL')
     password = os.environ.get('FB_PASSWORD')
     browser = the_opening(True, url)
