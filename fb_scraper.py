@@ -82,7 +82,6 @@ def scroll_down(driver):
             break
         last_height = new_height
         x += 1
-        return
 
 
 def grab_data(browser, state_you_want, *args):
